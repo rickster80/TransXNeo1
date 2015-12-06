@@ -16,14 +16,14 @@ namespace Neo4JTransX.Neo4J.Models
         public List<string> labels { get; set; }
     }
 
-    public class Data
+    public class Data : SpatialData
     {
         public string Type { get; set; }
         public string AtcoCode { get; set; }
         public string Street { get; set; }
         public string NatGazId { get; set; }
-        public string Longitude { get; set; }
-        public string Latitude { get; set; }
+        public float Longitude { get; set; }
+        public float Latitude { get; set; }
         public string Name { get; set; }
     }
 

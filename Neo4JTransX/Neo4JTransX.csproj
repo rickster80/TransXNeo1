@@ -52,16 +52,28 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\ExtensionMethods.cs" />
+    <Compile Include="Neo4J\Models\AddNodesToLayerResponse.cs" />
     <Compile Include="Neo4J\Models\Neo4JDataResponse.cs" />
     <Compile Include="Neo4J\NaptanSetup.cs" />
     <Compile Include="Neo4J\NeoServiceResponse.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TransXChange\Extensions\TransXTensions.cs" />
+    <Compile Include="TransXChange\nodeEntities\JourneyPattern.cs" />
+    <Compile Include="TransXChange\nodeEntities\NaptanStop.cs" />
+    <Compile Include="TransXChange\nodeEntities\NatGazLocality.cs" />
+    <Compile Include="TransXChange\nodeEntities\Operator.cs" />
+    <Compile Include="TransXChange\nodeEntities\Service.cs" />
+    <Compile Include="TransXChange\nodeEntities\StopPoint.cs" />
+    <Compile Include="TransXChange\nodeEntities\VehicleJourney.cs" />
+    <Compile Include="TransXChange\TransXChange.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Data\NaptanImport.cypher" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

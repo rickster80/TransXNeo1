@@ -22,7 +22,11 @@ namespace Neo4JTransX
         }
         static void Main(string[] args)
         {
-            var filePath = @"C:\Users\Ricky\Documents\Visual Studio 2015\Projects\TransXChange2Neo4J\TransXChange2Neo4J\TXData\StopCodes.csv";
+
+        }
+        public static void ParseStopCodes()
+        {
+            var filePath = @"C:\Users\Ricky\Documents\visual studio 2015\Projects\Neo4JTransX\Neo4JTransX\Data\StopCodes2.csv";
             var tr = File.OpenText(filePath);
             var csv = new CsvReader(tr);
             var setup = new NaptanSetup();
@@ -32,10 +36,13 @@ namespace Neo4JTransX
             {
                 var stopCode = csv.GetRecord<StopCode>();
                 codes.Add(stopCode.AtcoCode);
-                if (codes.Count >= 100)
+                if (codes.Count >= 10)
                 {
                     var cypher = $"MATCH n WHERE n.AtcoCode in {codes.ToJsonString()} RETURN n";
                     var nodes = Match(cypher).Result;
+
+                    var nodeInfo = nodes.results.FirstOrDefault()?.data.Select(d => d.rest.FirstOrDefault()?.self).ToList();
+                    var spatialRes = AddNodesToSpatialIndex(nodeInfo).Result;
                     codes.Clear();
                 }
                 Console.WriteLine(stopCode.AtcoCode);
@@ -57,6 +64,23 @@ namespace Neo4JTransX
             if (response.IsSuccessStatusCode)
             {
                 var result = JsonConvert.DeserializeObject<NeoRootObject<Data>>(response.Content.ReadAsStringAsync().Result);
+                return result;
+            }
+            return null;
+        }
+
+        public static async Task<IEnumerable<SpatialRootObject<Data>>> AddNodesToSpatialIndex(List<string> nodes)
+        {
+            var http = new HttpClient();
+            http.BaseAddress = new Uri("http://localhost:7474");
+            var payload = JsonConvert.SerializeObject(new { nodes = nodes, layer = "geom" });
+
+            http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            http.DefaultRequestHeaders.Add("Authorization", "Basic bmVvNGo6bDBmdGdyMDB2ZXI=");
+            var response = await http.PostAsync("/db/data/ext/SpatialPlugin/graphdb/addNodesToLayer", new StringContent(payload, Encoding.UTF8, "application/json"));
+            if (response.IsSuccessStatusCode)
+            {
+                var result = JsonConvert.DeserializeObject<IEnumerable<SpatialRootObject<Data>>>(response.Content.ReadAsStringAsync().Result);
                 return result;
             }
             return null;
