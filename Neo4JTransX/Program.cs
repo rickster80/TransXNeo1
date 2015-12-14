@@ -2,6 +2,7 @@
 using Neo4JTransX.Extensions;
 using Neo4JTransX.Neo4J;
 using Neo4JTransX.Neo4J.Models;
+using Neo4JTransX.TransXChange;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,8 @@ namespace Neo4JTransX
         }
         static void Main(string[] args)
         {
-
+            var tx = new TransXChangeParser("");
+            tx.ParseTransXSchedule();
         }
         public static void ParseStopCodes()
         {

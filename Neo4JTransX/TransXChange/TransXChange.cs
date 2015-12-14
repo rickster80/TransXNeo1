@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace Neo4JTransX.TransXChange
 {
-    public class TransXChange
+    public class TransXChangeParser
     {
         
         private List<Route> _routes;
@@ -20,21 +20,29 @@ namespace Neo4JTransX.TransXChange
         private List<Service> _services;
         private List<RouteSection> _routeSections;
         private List<AnnotatedStopPoint> _stopPoints;
-        public TransXChange(string filePath)
+        public TransXChangeParser(string filePath)
         {
+            _routes = new List<Route>();
+            _operators = new List<Operator>();
+            _vehicleJourneys = new List<VehicleJourney>();
+            _journeyPatternSections = new List<JourneyPatternSection>();
+            _services = new List<Service>();
+            _routeSections = new List<RouteSection>();
+            _stopPoints = new List<AnnotatedStopPoint>();
+
             //xDoc = XDocument.Load(filePath);
         }
         public void ParseTransXSchedule()
         {
-            var path = @"C:\Users\Ricky_2\Documents\TNDS\eataken";
-            string[] files = Directory.GetFiles(path, "*.xml");
-            foreach (var file in files)
-            {
-                var fpSplit = file.Split('-');
-                var timetable = fpSplit.ElementAt(0);
-                var timetableDate = fpSplit.ElementAt(1);
-                var timetableNo = fpSplit.ElementAt(2);
-
+            //var path = @"C:\Users\Ricky_2\Documents\TNDS\eataken";
+            //string[] files = Directory.GetFiles(path, "*.xml");
+            //foreach (var file in files)
+            //{
+            // var fpSplit = file.Split('-');
+            //var timetable = fpSplit.ElementAt(0);
+            //var timetableDate = fpSplit.ElementAt(1);
+            //var timetableNo = fpSplit.ElementAt(2);
+            var file = @"C:\Users\Ricky\Documents\visual studio 2015\Projects\Neo4JTransX\Neo4JTransX\Data\ea_20-1-_-y08-1.xml";
                 XDocument xDoc = XDocument.Load(file);
 
                 processJourneyPatternSections(xDoc);
@@ -46,7 +54,7 @@ namespace Neo4JTransX.TransXChange
                 processVehicleJourneys(xDoc);
 
                 Console.WriteLine("done");
-            }
+           // }
         }
         private void processOperators(XDocument xDoc)
         {
@@ -76,20 +84,20 @@ namespace Neo4JTransX.TransXChange
                 var privateCode = vj.Element("PrivateCode".AsXName());
                 var operatoringProfile = vj.Element("OperatingProfile".AsXName());
                 var oRegularDayType = operatoringProfile.Element("RegularDayType".AsXName());
-                var daysOfWeek = oRegularDayType.Element("DaysOfWeek".AsXName()).Elements().Select(o => o.Name.LocalName).ToList();
+                var daysOfWeek = oRegularDayType.Element("DaysOfWeek".AsXName())?.Elements()?.Select(o => o.Name.LocalName)?.ToList();
 
                 var specialDaysOp = operatoringProfile.Element("SpecialDaysOperation".AsXName());
                 //if (specialDaysOp != null)
                 //{
-                var daysNoneOp = specialDaysOp.Element("DaysOfNonOperation".AsXName()).Element("DateRange".AsXName());
+                var daysNoneOp = specialDaysOp?.Element("DaysOfNonOperation".AsXName()).Element("DateRange".AsXName());
                 var nonOpPeriod = new OperatingPeriod()
                 {
-                    StartDate = daysNoneOp.Element("StartDate".AsXName()).Value,
-                    EndDate = daysNoneOp.Element("EndDate".AsXName()).Value
+                    StartDate = daysNoneOp?.Element("StartDate".AsXName()).Value,
+                    EndDate = daysNoneOp?.Element("EndDate".AsXName()).Value
                 };
                 //}
-                var bankHolOp = operatoringProfile.Element("BankHolidayOperation".AsXName());
-                var bhNonOp = bankHolOp.Element("DaysOfNonOperation".AsXName()).Elements().Select(o => o.Name.LocalName).ToList();
+                var bankHolOp = operatoringProfile?.Element("BankHolidayOperation".AsXName());
+                var bhNonOp = bankHolOp?.Element("DaysOfNonOperation".AsXName())?.Elements().Select(o => o.Name.LocalName)?.ToList();
 
                 var opObj = new OperatingProfile()
                 {
@@ -120,12 +128,12 @@ namespace Neo4JTransX.TransXChange
         private void processServices(XDocument xDoc)
         {
             var parsed = new List<Service>();
-            var services = xDoc.Descendants("Services".AsXName()).Elements("Service".AsXName()).ToList();
+            var services = xDoc.Descendants("Services".AsXName()).Elements("Service".AsXName())?.ToList();
             services.ForEach(srv =>
             {
                 var srvCode = srv.Element("ServiceCode".AsXName()).Value;
                 var prvCode = srv.Element("PrivateCode".AsXName()).Value;
-                var lines = srv.Element("Lines".AsXName()).Descendants("Line".AsXName()).ToList()
+                var lines = srv.Element("Lines".AsXName()).Descendants("Line".AsXName())?.ToList()
                 .Select(l => new Line()
                 {
                     Id = l.Attribute("id").Value,
@@ -141,7 +149,7 @@ namespace Neo4JTransX.TransXChange
                 var mode = srv.Element("Mode".AsXName()).Value;
                 var desc = srv.Element("Description".AsXName()).Value;
                 var ssEl = srv.Element("StandardService".AsXName());
-                var ssJP = ssEl.Elements("JourneyPattern".AsXName()).ToList()
+                var ssJP = ssEl.Elements("JourneyPattern".AsXName())?.ToList()
                     .Select(jp => new JourneyPattern()
                     {
                         Id = jp.Attribute("id").Value,
